@@ -29,7 +29,7 @@ type AppMentionEvent struct {
 	SourceTeam string `json:"source_team,omitempty"`
 
 	// BotID is filled out when a bot triggers the app_mention event
-	BotID    string `json:"bot_id,omitempty"`
+	BotID string `json:"bot_id,omitempty"`
 }
 
 // AppHomeOpenedEvent Your Slack app home was opened.
@@ -113,6 +113,13 @@ type MessageEvent struct {
 
 	Upload bool   `json:"upload"`
 	Files  []File `json:"files"`
+
+	Attachments []slack.Attachment `json:"attachments,omitempty"`
+
+	// Root is the message that was broadcast to the channel when the SubType is
+	// thread_broadcast. If this is not a thread_broadcast message event, this
+	// value is nil.
+	Root *MessageEvent `json:"root"`
 }
 
 // MemberJoinedChannelEvent A member joined a public or private channel
@@ -173,6 +180,26 @@ type tokens struct {
 type TokensRevokedEvent struct {
 	Type   string `json:"type"`
 	Tokens tokens `json:"tokens"`
+}
+
+// EmojiChangedEvent is the event of custom emoji has been added or changed
+type EmojiChangedEvent struct {
+	Type           string      `json:"type"`
+	Subtype        string      `json:"subtype"`
+	EventTimeStamp json.Number `json:"event_ts"`
+
+	// filled out when custom emoji added
+	Name string `json:"name,omitempty"`
+
+	// filled out when custom emoji removed
+	Names []string `json:"names,omitempty"`
+
+	// filled out when custom emoji renamed
+	OldName string `json:"old_name,omitempty"`
+	NewName string `json:"new_name,omitempty"`
+
+	// filled out when custom emoji added or renamed
+	Value string `json:"value,omitempty"`
 }
 
 // JSONTime exists so that we can have a String method converting the date
@@ -305,6 +332,8 @@ const (
 	ReactionRemoved = "reaction_removed"
 	// TokensRevoked APP's API tokes are revoked
 	TokensRevoked = "tokens_revoked"
+	// EmojiChanged A custom emoji has been added or changed
+	EmojiChanged = "emoji_changed"
 )
 
 // EventsAPIInnerEventMapping maps INNER Event API events to their corresponding struct
@@ -325,4 +354,5 @@ var EventsAPIInnerEventMapping = map[string]interface{}{
 	ReactionAdded:         ReactionAddedEvent{},
 	ReactionRemoved:       ReactionRemovedEvent{},
 	TokensRevoked:         TokensRevokedEvent{},
+	EmojiChanged:          EmojiChangedEvent{},
 }
